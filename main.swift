@@ -242,6 +242,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pop.contentViewController = panel; pop.behavior = .transient
         panel.onDone = { [weak self] in self?.pop.performClose(nil); self?.floating?.orderOut(nil) }
         sharedDelegate = self
+        item.isVisible = false
         DistributedNotificationCenter.default().addObserver(forName: Notification.Name("local.taka.qlb.voicetest"), object: nil, queue: .main) { [weak self] _ in
             self?.showFloating(); self?.panel.testMode = true; self?.panel.startVoice()
         }
