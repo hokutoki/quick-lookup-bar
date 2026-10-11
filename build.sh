@@ -1,0 +1,11 @@
+#!/bin/bash
+# Build 調べものバー.app into ~/Applications
+# Optional: SIGN_ID=<codesign identity> ./build.sh (keeps Accessibility permission across rebuilds)
+set -e
+cd "$(dirname "$0")"
+APP="$HOME/Applications/調べものバー.app"
+mkdir -p "$APP/Contents/MacOS"
+cp Info.plist "$APP/Contents/Info.plist"
+swiftc -O main.swift -o "$APP/Contents/MacOS/QuickLookupBar"
+codesign --force -s "${SIGN_ID:--}" --identifier local.taka.quicklookupbar "$APP"
+echo "Built $APP"
