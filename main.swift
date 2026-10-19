@@ -200,7 +200,7 @@ class Panel: NSViewController, NSTextFieldDelegate {
         mic.sizeToFit()
         mic.frame.origin = NSPoint(x: x, y: 12); v.addSubview(mic)
         view = v
-        select(5)
+        select(0)
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
             guard let self = self, self.view.window?.isKeyWindow == true else { return e }
             let m = e.modifierFlags.intersection(.deviceIndependentFlagsMask)
@@ -213,7 +213,7 @@ class Panel: NSViewController, NSTextFieldDelegate {
         }
     }
     func prepare() {
-        select(5)
+        select(0)
         let pb = NSPasteboard.general.string(forType: .string) ?? ""
         if field.stringValue.isEmpty && pb.count < 200 { field.stringValue = pb }
         view.window?.makeFirstResponder(field); field.selectText(nil)

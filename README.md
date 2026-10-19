@@ -1,6 +1,6 @@
 # 調べものバー (Quick Lookup Bar)
 
-macOS用の調べものランチャーです。Shiftを2回押すと画面中央に入力欄が開き、打った言葉をすぐ各サービスに送れます。
+macOS用の調べものランチャーです。Shiftを2回押すと画面中央に入力欄が開き、打った言葉をすぐ各サービスに送れます。開くたびに「物書堂 辞書」が選ばれ、言葉を入力してEnterを押すと物書堂で検索します。
 
 | キー | 送り先 |
 | --- | --- |
@@ -9,7 +9,7 @@ macOS用の調べものランチャーです。Shiftを2回押すと画面中央
 | Shift+3 | Claude |
 | Shift+4 | Grok |
 | Shift+5 | Google |
-| Shift+6 | ChatGPTアプリの「あなたのdot」（開いたときの初期選択） |
+| Shift+6 | ChatGPTアプリの「あなたのdot」 |
 | Shift+7 | Grok Botアプリの入力欄 |
 | Shift+8 | 音声入力（ChatGPTへ送信） |
 
