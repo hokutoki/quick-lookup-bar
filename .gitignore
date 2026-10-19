@@ -2,3 +2,5 @@
 *.bak
 poke
 poke.swift
+.build/
+.DS_Store
