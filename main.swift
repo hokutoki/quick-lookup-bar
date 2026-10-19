@@ -214,8 +214,7 @@ class Panel: NSViewController, NSTextFieldDelegate {
     }
     func prepare() {
         select(0)
-        let pb = NSPasteboard.general.string(forType: .string) ?? ""
-        if field.stringValue.isEmpty && pb.count < 200 { field.stringValue = pb }
+        field.stringValue = ""
         view.window?.makeFirstResponder(field); field.selectText(nil)
     }
     func control(_ c: NSControl, textView: NSTextView, doCommandBy s: Selector) -> Bool {
