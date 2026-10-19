@@ -8,6 +8,8 @@
 	<string>local.taka.quicklookupbar</string>
 	<key>CFBundleName</key>
 	<string>調べものバー</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
