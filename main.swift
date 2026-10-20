@@ -89,7 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             window.isOpaque = false; window.backgroundColor = .clear; window.hasShadow = true
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             window.contentViewController = panel; window.delegate = self
-            panel.view.layer?.cornerRadius = 22; panel.view.layer?.masksToBounds = true
+            panel.view.layer?.cornerRadius = 10; panel.view.layer?.masksToBounds = true
             floating = window
         }
         guard let window = floating else { return }

@@ -12,3 +12,6 @@ swiftc LookupSettings.swift SettingsWindow.swift tests/SettingsEditorTests.swift
 "$test_build/editor-tests" "$test_build/settings.png"
 swiftc LookupSettings.swift SettingsWindow.swift tests/SettingsEditorBoundaries.swift -o "$test_build/editor-boundaries"
 "$test_build/editor-boundaries" "$test_build/errors.png"
+
+swiftc LookupSettings.swift SettingsWindow.swift LookupPanel.swift AppTransfer.swift tests/CompactPanelTests.swift -o "$test_build/compact-tests"
+"$test_build/compact-tests"

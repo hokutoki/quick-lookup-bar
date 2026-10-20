@@ -24,29 +24,21 @@ final class LookupTargetButton: NSButton {
     override var isFlipped: Bool { true }
 
     init(name: String, symbolName: String, shortcut: Int?, width: CGFloat) {
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 52))
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 28))
         title = ""
         isBordered = false
         setButtonType(.momentaryPushIn)
         wantsLayer = true
-        layer?.cornerRadius = 12
-        layer?.borderWidth = 1
-        symbol.frame = NSRect(x: 12, y: 16, width: 20, height: 20)
-        symbol.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
-        symbol.imageScaling = .scaleProportionallyDown
-        addSubview(symbol)
+        layer?.cornerRadius = 5
         nameLabel.stringValue = name
-        nameLabel.font = lookupFont(14)
-        nameLabel.frame = NSRect(x: 40, y: 16, width: width - 88, height: 22)
+        nameLabel.font = lookupFont(12)
+        nameLabel.frame = NSRect(x: 9, y: 5, width: width - 47, height: 19)
         nameLabel.lineBreakMode = .byTruncatingTail
         addSubview(nameLabel)
         keyLabel.stringValue = shortcut.map { "⇧\($0)" } ?? ""
-        keyLabel.font = lookupFont(12)
-        keyLabel.alignment = .center
-        keyLabel.frame = NSRect(x: width - 41, y: 15, width: 32, height: 24)
-        keyLabel.wantsLayer = true
-        keyLabel.layer?.cornerRadius = 6
-        keyLabel.layer?.backgroundColor = NSColor.white.cgColor
+        keyLabel.font = lookupFont(10)
+        keyLabel.alignment = .right
+        keyLabel.frame = NSRect(x: width - 34, y: 6, width: 25, height: 17)
         addSubview(keyLabel)
         toolTip = name + (shortcut.map { " — Shift+\($0)で選択" } ?? " — クリックで選択")
         setAccessibilityLabel(toolTip)
@@ -54,11 +46,9 @@ final class LookupTargetButton: NSButton {
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     func setSelected(_ selected: Bool) {
-        layer?.backgroundColor = (selected ? NSColor(calibratedRed: 0.88, green: 0.96, blue: 0.96, alpha: 1) : .white).cgColor
-        layer?.borderColor = (selected ? lookupTeal : NSColor(calibratedWhite: 0.84, alpha: 1)).cgColor
-        nameLabel.textColor = selected ? lookupTeal : .labelColor
-        symbol.contentTintColor = selected ? lookupTeal : .secondaryLabelColor
-        keyLabel.textColor = selected ? lookupTeal : .secondaryLabelColor
+        layer?.backgroundColor = (selected ? NSColor.controlAccentColor.withAlphaComponent(0.14) : .clear).cgColor
+        nameLabel.textColor = selected ? .controlAccentColor : .labelColor
+        keyLabel.textColor = selected ? .controlAccentColor : .secondaryLabelColor
         setAccessibilityValue(selected ? "選択中" : "未選択")
     }
 }
@@ -98,9 +88,9 @@ final class Panel: NSViewController, NSTextFieldDelegate {
     deinit { if let monitor = keyMonitor { NSEvent.removeMonitor(monitor) } }
 
     override func loadView() {
-        view = LookupSurface(frame: NSRect(x: 0, y: 0, width: 880, height: 350), color: NSColor(calibratedRed: 0.98, green: 0.98, blue: 0.96, alpha: 1))
+        view = LookupSurface(frame: NSRect(x: 0, y: 0, width: 680, height: 144), color: .white)
         view.appearance = NSAppearance(named: .aqua)
-        view.layer?.cornerRadius = 22; view.layer?.masksToBounds = true
+        view.layer?.cornerRadius = 10; view.layer?.masksToBounds = true
         field.delegate = self
         rebuild()
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
@@ -122,69 +112,61 @@ final class Panel: NSViewController, NSTextFieldDelegate {
     func rebuild() {
         view.subviews.forEach { $0.removeFromSuperview() }
         buttons.removeAll()
-        let columnWidth: CGFloat = 200.5
+        let panelWidth: CGFloat = 680
+        let inset: CGFloat = 14
+        let contentWidth = panelWidth - inset * 2
+        let columnGap: CGFloat = 6
+        let columnWidth = (contentWidth - columnGap * 3) / 4
+        let rowStride: CGFloat = 32
         let rows = max(1, Int(ceil(Double(targets.count + 1) / 4.0)))
-        let gridHeight = CGFloat(min(rows, 3) * 62 - 10)
-        let gridBottom = 140 + gridHeight
-        let height = gridBottom + 100
-        view.setFrameSize(NSSize(width: 880, height: height))
+        let gridHeight = CGFloat(min(rows, 3)) * rowStride - 4
+        let gridBottom = 54 + gridHeight
+        view.setFrameSize(NSSize(width: panelWidth, height: gridBottom + 32))
         preferredContentSize = view.frame.size
-        let icon = NSImageView(frame: NSRect(x: 24, y: 20, width: 34, height: 34))
-        if let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns") { icon.image = NSImage(contentsOf: url) }
-        icon.imageScaling = .scaleProportionallyDown
-        view.addSubview(icon)
-        let title = NSTextField(labelWithString: "調べものバー")
-        title.font = lookupFont(21); title.frame = NSRect(x: 70, y: 22, width: 400, height: 30)
-        view.addSubview(title)
-        let gear = NSButton(image: NSImage(systemSymbolName: "gearshape", accessibilityDescription: "設定")!, target: self, action: #selector(settings))
-        gear.frame = NSRect(x: 818, y: 19, width: 38, height: 36)
-        gear.bezelStyle = .texturedRounded; gear.toolTip = "検索先を追加・並べ替え"
-        view.addSubview(gear)
-        let input = LookupSurface(frame: NSRect(x: 24, y: 72, width: 832, height: 50), color: .white)
-        input.layer?.cornerRadius = 12; input.layer?.borderWidth = 1.5; input.layer?.borderColor = lookupTeal.withAlphaComponent(0.55).cgColor
-        let glass = NSImageView(frame: NSRect(x: 14, y: 14, width: 22, height: 22))
-        glass.image = NSImage(systemSymbolName: "magnifyingglass", accessibilityDescription: nil)
-        glass.contentTintColor = .secondaryLabelColor; input.addSubview(glass)
-        field.frame = NSRect(x: 48, y: 11, width: 768, height: 30)
-        field.font = lookupFont(20); field.isBordered = false; field.drawsBackground = false
+
+        field.frame = NSRect(x: inset, y: 14, width: contentWidth - 78, height: 28)
+        field.font = lookupFont(15)
+        field.isBordered = false; field.isBezeled = true; field.drawsBackground = true
+        field.bezelStyle = .roundedBezel
         field.placeholderString = "調べたい言葉を入力"
         field.setAccessibilityLabel("調べたい言葉")
-        input.addSubview(field); view.addSubview(input)
-        let grid = LookupSurface(frame: NSRect(x: 0, y: 0, width: 832, height: CGFloat(rows * 62 - 10)), color: .clear)
-        let scroll = NSScrollView(frame: NSRect(x: 24, y: 140, width: 832, height: gridHeight))
+        view.addSubview(field)
+        searchButton.target = self; searchButton.action = #selector(search)
+        searchButton.font = lookupFont(12); searchButton.bezelStyle = .rounded
+        searchButton.frame = NSRect(x: panelWidth - inset - 72, y: 12, width: 72, height: 32)
+        view.addSubview(searchButton)
+
+        let grid = LookupSurface(frame: NSRect(x: 0, y: 0, width: contentWidth, height: CGFloat(rows) * rowStride - 4), color: .clear)
+        let scroll = NSScrollView(frame: NSRect(x: inset, y: 54, width: contentWidth, height: gridHeight))
         scroll.drawsBackground = false; scroll.borderType = .noBorder
         scroll.hasVerticalScroller = rows > 3; scroll.scrollerStyle = .overlay
         scroll.documentView = grid; view.addSubview(scroll)
         for (index, target) in targets.enumerated() {
             let button = LookupTargetButton(name: target.name, symbolName: target.symbolName, shortcut: target.shortcut, width: columnWidth)
             button.tag = index; button.target = self; button.action = #selector(choose(_:))
-            button.frame.origin = NSPoint(x: CGFloat(index % 4) * 210.5, y: CGFloat(index / 4) * 62)
+            button.frame.origin = NSPoint(x: CGFloat(index % 4) * (columnWidth + columnGap), y: CGFloat(index / 4) * rowStride)
             buttons.append(button); grid.addSubview(button)
         }
         let micIndex = targets.count
-        mic.frame.origin = NSPoint(x: CGFloat(micIndex % 4) * 210.5, y: CGFloat(micIndex / 4) * 62)
+        mic.setFrameSize(NSSize(width: columnWidth, height: 28))
+        mic.nameLabel.frame.size.width = columnWidth - 47
+        mic.keyLabel.frame.origin.x = columnWidth - 34
+        mic.frame.origin = NSPoint(x: CGFloat(micIndex % 4) * (columnWidth + columnGap), y: CGFloat(micIndex / 4) * rowStride)
         mic.target = self; mic.action = #selector(toggleVoice)
         mic.toolTip = "音声入力 → ChatGPT Web（Shift+8）"
         mic.setAccessibilityLabel(mic.toolTip)
         mic.isEnabled = targets.contains(where: { $0.id == "chatgpt-web" })
         grid.addSubview(mic)
-        let divider = LookupSurface(frame: NSRect(x: 24, y: gridBottom + 16, width: 832, height: 1), color: NSColor(calibratedWhite: 0.86, alpha: 1))
-        view.addSubview(divider)
-        let paste = NSButton(title: "⌘V  貼り付け", target: self, action: #selector(pasteText))
-        paste.font = lookupFont(13); paste.isBordered = false; paste.frame = NSRect(x: 18, y: gridBottom + 28, width: 130, height: 30)
-        view.addSubview(paste)
-        let close = NSButton(title: "Esc  閉じる", target: self, action: #selector(closePanel))
-        close.font = lookupFont(13); close.isBordered = false; close.frame = NSRect(x: 152, y: gridBottom + 28, width: 120, height: 30)
-        view.addSubview(close)
-        searchButton.target = self; searchButton.action = #selector(search)
-        searchButton.font = lookupFont(16); searchButton.bezelStyle = .rounded
-        searchButton.bezelColor = lookupTeal; searchButton.contentTintColor = .white
-        searchButton.frame = NSRect(x: 610, y: gridBottom + 26, width: 246, height: 38)
-        view.addSubview(searchButton)
-        statusLabel.font = lookupFont(11); statusLabel.textColor = .secondaryLabelColor
-        statusLabel.frame = NSRect(x: 24, y: gridBottom + 72, width: 832, height: 20)
-        statusLabel.stringValue = store.loadError == nil ? "音声入力の送信先：ChatGPT Web" : "設定を読み込めなかったため標準設定で起動しました。設定画面で確認してください。"
+
+        statusLabel.font = lookupFont(10); statusLabel.textColor = .secondaryLabelColor
+        statusLabel.frame = NSRect(x: inset + 2, y: gridBottom + 7, width: contentWidth - 34, height: 17)
+        statusLabel.stringValue = store.loadError == nil ? "⇧数字で選択   ↩ 検索   esc 閉じる   ⌘V 貼り付け" : "設定を読み込めませんでした。設定画面で確認してください。"
         view.addSubview(statusLabel)
+        let gear = NSButton(image: NSImage(systemSymbolName: "gearshape", accessibilityDescription: "設定")!, target: self, action: #selector(settings))
+        gear.frame = NSRect(x: panelWidth - inset - 26, y: gridBottom + 2, width: 26, height: 26)
+        gear.isBordered = false; gear.contentTintColor = .secondaryLabelColor
+        gear.toolTip = "検索先を追加・並べ替え"
+        view.addSubview(gear)
         select(id: targets.contains(where: { $0.id == selectedID }) ? selectedID : store.settings.defaultTargetID)
         onResize?(view.frame.size)
     }
@@ -197,7 +179,7 @@ final class Panel: NSViewController, NSTextFieldDelegate {
     }
     func updateSearchButton() {
         let name = targets.first(where: { $0.id == selectedID })?.name ?? "検索"
-        searchButton.title = "\(name)で検索  ↩"
+        searchButton.title = "検索 ↩"
         searchButton.toolTip = "\(name)で検索（Enter）"
         searchButton.setAccessibilityLabel(searchButton.toolTip)
         searchButton.isEnabled = !field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !listening
