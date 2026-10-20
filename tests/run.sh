@@ -15,3 +15,6 @@ swiftc LookupSettings.swift SettingsWindow.swift tests/SettingsEditorBoundaries.
 
 swiftc LookupSettings.swift SettingsWindow.swift LookupPanel.swift AppTransfer.swift tests/CompactPanelTests.swift -o "$test_build/compact-tests"
 "$test_build/compact-tests"
+
+swiftc LookupApplication.swift LookupSettings.swift SettingsWindow.swift LookupPanel.swift AppTransfer.swift tests/InputFocusTests.swift -o "$test_build/input-focus-tests"
+"$test_build/input-focus-tests"

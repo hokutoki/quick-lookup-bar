@@ -189,7 +189,13 @@ final class Panel: NSViewController, NSTextFieldDelegate {
         cancelInput()
         field.stringValue = ""
         select(id: store.settings.defaultTargetID)
-        view.window?.makeFirstResponder(field)
+        focusInput()
+    }
+    @discardableResult func focusInput() -> Bool {
+        guard let window = view.window else { return false }
+        window.initialFirstResponder = field
+        guard window.makeFirstResponder(field) else { return false }
+        return field.currentEditor() === window.firstResponder
     }
     func cancelInput() {
         if listening { stopVoice(send: false) }
